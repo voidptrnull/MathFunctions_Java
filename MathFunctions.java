@@ -2,12 +2,14 @@
  * A recreation of the `java.lang.Math` class.
  * This does not use any inbuilt or external methods from other classes. Use according to your wishes.
  * @author SrcyDev
- * @version 1.0.0
+ * @version 1.0.1
  * 
+ * Know Issues: pow(),exp(),tanh(),cosh(),sinh() and some others  i.e. hyperbolic,logarithmic and exponential functions do not work properly.
+ *
  * Note - This class's method may not be as accurate than the inbuilt `java.lang.Math' class. Also, it may provide incorrect results.
  */
 
-public class MathFunctions {
+ public class MathFunctions {
     public static final double PI = 3.141592653589793;
     public static final double E = 2.718281828459045;
     public static final double SQRT2 = 1.414213562373095;
@@ -448,55 +450,30 @@ public class MathFunctions {
     }
 
     public static double sin(double x) {
-        // convert x to its equivalent value in the range [0, 2*PI)
-        x = x % (2 * MathFunctions.PI);
-        // initialize the result to 0
-        double result = 0;
-        // initialize the term to 1
-        double term = 1;
-        // initialize the power of x to 1
-        long power = 1;
-        // initialize the factorial to 1
-        long factorial = 1;
-        // iterate over the terms of the Taylor series
-        for (int i = 1; term != 0; i++) {
-            // add the current term to the result
-            result += term;
-            // update the power of x
-            power *= x;
-            // update the factorial
-            factorial *= i;
-            // update the term
-            term = power / factorial;
-            // if i is even, negate the term
-            if (i % 2 == 0) {
-                term = -term;
-            }
+        double sin = 0;
+        if (x < 0) {
+            x = -x;
+            sin = -sin(x);
+        } else if (x > Math.PI / 2) {
+            x = Math.PI - x;
+            sin = sin(x);
+        } else {
+            double x2 = x * x;
+            sin = x * (1 + x2 * (-1.0 / 6 + x2 * (1.0 / 120 - x2 / 5040)));
         }
-        // return the result
-        return result;
+        return sin;
     }
+
   
-    public static double cos(double degrees) {
-        double radians = degrees * (MathFunctions.PI / 180);
-        double cosine = 1;
-        double term = 1;
-        for (int i = 1; term > 1e-15; i++) {
-            term *= (-radians * radians) / ((2 * i - 1) * (2 * i));
-            cosine += term;
-        }
-        return cosine;
+    public static double cos(double x) {
+        double g = sin(x);
+        return sqrt(1 - (g * g)); // Pythagorean Identity : sin ^ 2(x) + cos ^ 2 (x) = 1
     }
   
     public static double tan(double x)
     {
-        double x2 = x * x;
-        double x3 = x2 * x;
-        double x5 = x3 * x2;
-        double x7 = x5 * x2;
-  
-        double result = x + x3 / 3 + 2 * x5 / 15 + 17 * x7 / 315;
-        return result;
+        double g = sin(x);
+        return g / sqrt(1- (g * g)); // As tan(x) = sin(x) / cos(x)
     }
   
       public static double asin(double x) {
@@ -504,18 +481,7 @@ public class MathFunctions {
             throw new IllegalArgumentException("Invalid input for asin function: " + x);
         }
           
-        double result = 0;
-        double currentTerm = x;
-        int n = 1;
-  
-        // Use a Taylor series expansion to approximate the asin function
-        while (abs(currentTerm) > 1e-15) {
-            result += currentTerm;
-            currentTerm *= (-(2 * n - 1) * x * x) / (2 * n + 1);
-            n++;
-        } 
-  
-        return result;
+        return 1/ sin(x);
     }
   
     public static double acos(double x)
